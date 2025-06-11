@@ -6,37 +6,39 @@ pipeline {
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
                 git 'https://github.com/saikarthik2511/project.git'
+                sh 'ls -l' // debug
             }
         }
 
-        stage('Clean Apache Directory') {
+        stage('Clean Target') {
             steps {
                 sh "sudo rm -rf ${DEPLOY_DIR}/*"
             }
         }
 
-        stage('Deploy Files to Apache') {
+        stage('Copy Files') {
             steps {
-                sh "sudo cp -r * ${DEPLOY_DIR}/"
+                sh "sudo cp -r ${WORKSPACE}/* ${DEPLOY_DIR}/"
+                sh "ls -l ${DEPLOY_DIR}" // verify deployment
             }
         }
 
         stage('Restart Apache') {
             steps {
-                sh "sudo systemctl restart httpd"
+                sh 'sudo systemctl restart httpd'
             }
         }
     }
 
     post {
         success {
-            echo 'Deployment completed successfully!'
+            echo '✅ Deployment successful.'
         }
         failure {
-            echo 'Deployment failed!'
+            echo '❌ Deployment failed.'
         }
     }
 }
