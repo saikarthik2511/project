@@ -1,28 +1,25 @@
 pipeline {
     agent any
 
-    environment {
-        DEPLOY_DIR = "/var/www/html"
-    }
-
     stages {
-        stage('Checkout') {
+        stage('Clone Repo') {
             steps {
-                git 'https://github.com/saikarthik2511/project.git'
-                sh 'ls -l' // debug
+                git 'https://github.com/<your-username>/<your-repo>.git'
+                sh 'ls -l ${WORKSPACE}' // confirm files exist
             }
         }
 
-        stage('Clean Target') {
+        stage('Clean Apache Folder') {
             steps {
-                sh "sudo rm -rf ${DEPLOY_DIR}/*"
+                sh 'sudo rm -rf /var/www/html/*'
             }
         }
 
         stage('Copy Files') {
             steps {
-                sh "sudo cp -r ${WORKSPACE}/* ${DEPLOY_DIR}/"
-                sh "ls -l ${DEPLOY_DIR}" // verify deployment
+                // adjust this path if your files are in a subfolder like /web or /dist
+                sh 'sudo cp -r ${WORKSPACE}/* /var/www/html/'
+                sh 'ls -l /var/www/html' // confirm deployment
             }
         }
 
@@ -30,15 +27,6 @@ pipeline {
             steps {
                 sh 'sudo systemctl restart httpd'
             }
-        }
-    }
-
-    post {
-        success {
-            echo '✅ Deployment successful.'
-        }
-        failure {
-            echo '❌ Deployment failed.'
         }
     }
 }
