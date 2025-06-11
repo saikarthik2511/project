@@ -1,41 +1,28 @@
 pipeline {
     agent any
 
-    environment {
-        DEPLOY_DIR = "/var/www/html"
-    }
-
     stages {
-        stage('Clone Repository') {
+        stage('Clone Repo') {
             steps {
+                // Checkout the repo that contains index.html
                 git 'https://github.com/saikarthik2511/project.git'
             }
         }
 
-        stage('Build') {
+        stage('Deploy HTML') {
             steps {
-                echo "No build required for static HTML app"
-            }
-        }
-
-        stage('Deploy to Apache') {
-            steps {
+                // Clean up default Apache file and deploy your index.html
                 sh '''
-                sudo rm -rf $DEPLOY_DIR/*
-                sudo cp -r * $DEPLOY_DIR/
-                sudo systemctl restart httpd
+                sudo rm -f /var/www/html/index.html
+                sudo cp index.html /var/www/html/index.html
                 '''
             }
         }
-    }
 
-    post {
-        success {
-            echo "Deployment Successful"
-        }
-        failure {
-            echo "Deployment Failed"
+        stage('Restart Apache') {
+            steps {
+                sh 'sudo systemctl restart httpd'
+            }
         }
     }
 }
-
