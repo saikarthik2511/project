@@ -1,32 +1,40 @@
 pipeline {
     agent any
 
+    environment {
+        DEPLOY_DIR = "/var/www/html"
+    }
+
     stages {
-        stage('Clone Repo') {
+        stage('Clone Repository') {
             steps {
                 git 'https://github.com/saikarthik2511/project.git'
-                sh 'ls -l ${WORKSPACE}' // confirm files exist
             }
         }
 
-        stage('Clean Apache Folder') {
+        stage('Build') {
             steps {
-                sh 'sudo rm -rf /var/www/html/*'
+                echo "No build required for static HTML app"
             }
         }
 
-        stage('Copy Files') {
+        stage('Deploy to Apache') {
             steps {
-                // adjust this path if your files are in a subfolder like /web or /dist
-                sh 'sudo cp -r ${WORKSPACE}/* /var/www/html/'
-                sh 'ls -l /var/www/html' // confirm deployment
+                sh '''
+                sudo rm -rf $DEPLOY_DIR/*
+                sudo cp -r * $DEPLOY_DIR/
+                sudo systemctl restart httpd
+                '''
             }
         }
+    }
 
-        stage('Restart Apache') {
-            steps {
-                sh 'sudo systemctl restart httpd'
-            }
+    post {
+        success {
+            echo "Deployment Successful"
+        }
+        failure {
+            echo "Deployment Failed"
         }
     }
 }
