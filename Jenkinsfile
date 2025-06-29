@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Clone Repo') {
             steps {
-                git 'https://github.com/<your-username>/<your-repo>.git'
+                git 'https://github.com/saikarthik2511/project.git'
                 sh 'ls -l ${WORKSPACE}' // confirm files exist
             }
         }
